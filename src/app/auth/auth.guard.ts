@@ -1,37 +1,27 @@
-import {ActivatedRouteSnapshot, CanActivate, Router, RouterStateSnapshot} from '@angular/router';
-import {Injectable} from '@angular/core';
-import {Observable} from 'rxjs';
-import {AppState} from '../reducers';
-import {select, Store} from '@ngrx/store';
-import {isLoggedIn} from './auth.selectors';
-import {tap} from 'rxjs/operators';
-import {login, logout} from './auth.actions';
+import { Injectable } from '@angular/core';
+import { ActivatedRouteSnapshot, Router, RouterStateSnapshot } from '@angular/router';
+import { select, Store } from '@ngrx/store';
+import { Observable } from 'rxjs';
+import { tap } from 'rxjs/operators';
 
+import { AppState } from '../reducers';
+import { isLoggedIn } from './auth.selectors';
 
 @Injectable()
-export class AuthGuard implements CanActivate {
+export class AuthGuard {
+  constructor(private store: Store<AppState>, private router: Router) {}
 
-    constructor(
-        private store: Store<AppState>,
-        private router: Router) {
-
-    }
-
-    canActivate(
-        route: ActivatedRouteSnapshot,
-        state: RouterStateSnapshot): Observable<boolean> {
-
-        return this.store
-            .pipe(
-                select(isLoggedIn),
-                tap(loggedIn => {
-                    if (!loggedIn) {
-                        this.router.navigateByUrl('/login');
-                    }
-                })
-            )
-
-
-    }
-
+  canActivate(
+    route: ActivatedRouteSnapshot,
+    state: RouterStateSnapshot
+  ): Observable<boolean> {
+    return this.store.pipe(
+      select(isLoggedIn),
+      tap((isLoggedIn) => {
+        if (!isLoggedIn) {
+          this.router.navigateByUrl("/login");
+        }
+      })
+    );
+  }
 }

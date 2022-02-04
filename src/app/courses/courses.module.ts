@@ -16,33 +16,17 @@ import { MatSortModule } from '@angular/material/sort';
 import { MatTableModule } from '@angular/material/table';
 import { MatTabsModule } from '@angular/material/tabs';
 import { RouterModule, Routes } from '@angular/router';
-import { EntityDataService, EntityDefinitionService, EntityMetadataMap } from '@ngrx/data';
+import { EffectsModule } from '@ngrx/effects';
+import { StoreModule } from '@ngrx/store';
 
 import { CourseComponent } from './course/course.component';
 import { CoursesCardListComponent } from './courses-card-list/courses-card-list.component';
+import { CoursesEffects } from './courses.effects';
+import { CoursesResolver } from './courses.resolver';
 import { EditCourseDialogComponent } from './edit-course-dialog/edit-course-dialog.component';
 import { HomeComponent } from './home/home.component';
-import { compareCourses, Course } from './model/course';
-import { compareLessons } from './model/lesson';
-import { CourseEntityService } from './services/course-entny.service';
-import { CoursesDataService } from './services/courses-data.service';
+import { coursesReducer } from './reducers/course.reducer';
 import { CoursesHttpService } from './services/courses-http.service';
-import { CoursesResolver } from './services/courses.resolver';
-import { LessonEntityService } from './services/lesson-entity.service';
-
-const entityMetadata: EntityMetadataMap = {
-  Course: {
-    sortComparer: compareCourses,
-    entityDispatcherOptions: {
-      optimisticUpdate: true,
-      // optimisticDelete: true, -> nem kell, optimistic alapból
-      // optimisticAdd: true, -> ID generálás miatt nem mindig megy, általában azt a backend csinálja
-    },
-  },
-  Lesson: {
-    sortComparer: compareLessons,
-  },
-};
 
 export const coursesRoutes: Routes = [
   {
@@ -55,9 +39,6 @@ export const coursesRoutes: Routes = [
   {
     path: ":courseUrl",
     component: CourseComponent,
-    resolve: {
-      courses: CoursesResolver,
-    },
   },
 ];
 
@@ -80,6 +61,8 @@ export const coursesRoutes: Routes = [
     MatMomentDateModule,
     ReactiveFormsModule,
     RouterModule.forChild(coursesRoutes),
+    EffectsModule.forFeature([CoursesEffects]),
+    StoreModule.forFeature("courses", coursesReducer),
   ],
   declarations: [
     HomeComponent,
@@ -94,21 +77,8 @@ export const coursesRoutes: Routes = [
     CourseComponent,
   ],
   entryComponents: [EditCourseDialogComponent],
-  providers: [
-    CoursesHttpService,
-    CourseEntityService,
-    LessonEntityService,
-    CoursesResolver,
-    CoursesDataService,
-  ],
+  providers: [CoursesHttpService, CoursesResolver],
 })
 export class CoursesModule {
-  constructor(
-    private eds: EntityDefinitionService,
-    private entityDataService: EntityDataService,
-    private corusesDataService: CoursesDataService
-  ) {
-    eds.registerMetadataMap(entityMetadata);
-    entityDataService.registerService("Course", corusesDataService);
-  }
+  constructor() {}
 }

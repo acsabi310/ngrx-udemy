@@ -9,7 +9,6 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { RouterModule, Routes } from '@angular/router';
-import { EntityDataModule } from '@ngrx/data';
 import { EffectsModule } from '@ngrx/effects';
 import { RouterState, StoreRouterConnectingModule } from '@ngrx/router-store';
 import { StoreModule } from '@ngrx/store';
@@ -19,7 +18,7 @@ import { environment } from '../environments/environment';
 import { AppComponent } from './app.component';
 import { AuthGuard } from './auth/auth.guard';
 import { AuthModule } from './auth/auth.module';
-import { metaReducers, reducers } from './reducers';
+import * as fromApp from './reducers';
 
 const routes: Routes = [
   {
@@ -48,13 +47,13 @@ const routes: Routes = [
     MatListModule,
     MatToolbarModule,
     AuthModule.forRoot(),
-    StoreModule.forRoot(reducers, {
-      metaReducers,
+    StoreModule.forRoot(fromApp.reducers, {
+      metaReducers: fromApp.metaReducers,
       runtimeChecks: {
         strictStateImmutability: true,
+        strictStateSerializability: true,
         strictActionImmutability: true,
         strictActionSerializability: true,
-        strictStateSerializability: true,
       },
     }),
     StoreDevtoolsModule.instrument({
@@ -66,7 +65,6 @@ const routes: Routes = [
       stateKey: "router",
       routerState: RouterState.Minimal,
     }),
-    EntityDataModule.forRoot({}),
   ],
   bootstrap: [AppComponent],
 })
